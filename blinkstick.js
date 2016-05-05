@@ -428,6 +428,11 @@ BlinkStick.prototype.setColor = function (red, green, blue, options, callback) {
 
     var sendColorInternal = function (r, g, b, callback) {
         try {
+            if (self.inverse) {
+              r = 255 - r;
+              g = 255 - g;
+              b = 255 - b;
+            }
             if (params.options.channel === 0 && params.options.index === 0) {
                 self.setFeatureReport(1, [1, r, g, b], callback);
             } else {
@@ -595,6 +600,12 @@ BlinkStick.prototype.getColor = function (index, callback) {
     if (typeof(index) == 'function') {
         callback = index;
         index = 0;
+    }
+    if (this.inverse) {
+      var _callback = callback;
+      callback = function(err, r, g, b) {
+        _callback(err, 255 - r, 255 - g, 255 - b);
+      }
     }
 
     if (index === 0) {
@@ -1026,13 +1037,6 @@ BlinkStick.prototype.interpretParameters = function (red, green, blue, options, 
     red = Math.max(Math.min(red, 255), 0);
     green = Math.max(Math.min(green, 255), 0);
     blue = Math.max(Math.min(blue, 255), 0);
-
-    if (this.inverse)
-    {
-        red = 255 - red;
-        green = 255 - green;
-        blue = 255 - blue;
-    }
 
     return {'red': red, 'green': green, 'blue': blue, 'options': options, 'callback': callback};
 };
